@@ -16,10 +16,10 @@ export default async function LeaderboardsPage() {
     (supabase as any).from("virtual_assets").select("id, current_price")
   ]);
 
-  const usernames = new Map((profiles ?? []).map((item) => [item.id, item.username]));
-  const prices = new Map((assets ?? []).map((item) => [item.id, item.current_price]));
-  const lockedRank = rankCounts(lockedPixels?.map((item) => item.owner_id ?? "") ?? [], usernames);
-  const paintedRank = rankCounts(history?.map((item) => item.user_id ?? "") ?? [], usernames);
+  const usernames = new Map<string, string>((profiles ?? []).map((item: any) => [String(item.id), String(item.username)]));
+  const prices = new Map<string, number>((assets ?? []).map((item: any) => [String(item.id), Number(item.current_price)]));
+  const lockedRank = rankCounts(lockedPixels?.map((item: any) => item.owner_id ?? "") ?? [], usernames);
+  const paintedRank = rankCounts(history?.map((item: any) => item.user_id ?? "") ?? [], usernames);
   const portfolioRank = Array.from(
     (holdings ?? []).reduce((map, holding) => map.set(holding.user_id, (map.get(holding.user_id) ?? 0) + holding.quantity * (prices.get(holding.asset_id) ?? 0)), new Map<string, number>())
   ).map(([id, value]) => ({ id, label: usernames.get(id) ?? id.slice(0, 8), value })).sort((a, b) => b.value - a.value).slice(0, 10);
@@ -33,7 +33,7 @@ export default async function LeaderboardsPage() {
         <section className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           <Board title="Meiste locked Pixel" icon={<Gem />} rows={lockedRank} />
           <Board title="Meiste bemalte Pixel" icon={<Paintbrush />} rows={paintedRank} />
-          <Board title="Reichste Nutzer nach Coins" icon={<PiggyBank />} rows={(profiles ?? []).map((item) => ({ id: item.id, label: item.username, value: item.coins }))} coins />
+          <Board title="Reichste Nutzer nach Coins" icon={<PiggyBank />} rows={(profiles ?? []).map((item: any) => ({ id: item.id, label: item.username, value: item.coins }))} coins />
           <Board title="Höchster Börsenwert" icon={<TrendingUp />} rows={portfolioRank} coins />
           <Board title="Aktivste Nutzer" icon={<Zap />} rows={paintedRank} />
         </section>
