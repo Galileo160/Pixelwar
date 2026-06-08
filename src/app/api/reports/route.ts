@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const body = reportSchema.safeParse(await request.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { error } = await auth.supabase.from("reports").insert({
+  const { error } = await (auth.supabase as any).from("reports").insert({
     x: body.data.x,
     y: body.data.y,
     reason: body.data.reason,

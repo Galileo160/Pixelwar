@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 export default async function MarketPage() {
   const { supabase, profile } = await getSessionProfile();
   const [{ data: assets }, { data: holdings }] = await Promise.all([
-    supabase.from("virtual_assets").select("*, asset_price_history(price, recorded_at)").order("symbol"),
-    supabase.from("user_asset_holdings").select("*").eq("user_id", profile.id)
+    (supabase as any).from("virtual_assets").select("*, asset_price_history(price, recorded_at)").order("symbol"),
+    (supabase as any).from("user_asset_holdings").select("*").eq("user_id", profile.id)
   ]);
 
   return (

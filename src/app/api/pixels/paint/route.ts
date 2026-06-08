@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const body = paintPixelSchema.safeParse(await request.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { data, error } = await auth.supabase.rpc("paint_pixel", {
+  const { data, error } = await (auth.supabase as any).rpc("paint_pixel", {
     p_x: body.data.x,
     p_y: body.data.y,
     p_color: body.data.color,

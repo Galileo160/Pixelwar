@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const body = schema.safeParse(await request.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { data, error } = await auth.supabase.rpc("grant_test_currency", { p_coins: body.data.coins, p_diamonds: body.data.diamonds });
+  const { data, error } = await (auth.supabase as any).rpc("grant_test_currency", { p_coins: body.data.coins, p_diamonds: body.data.diamonds });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json(data);
 }

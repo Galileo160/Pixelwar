@@ -9,11 +9,11 @@ export const dynamic = "force-dynamic";
 export default async function LeaderboardsPage() {
   const { supabase, profile } = await getSessionProfile();
   const [{ data: profiles }, { data: lockedPixels }, { data: history }, { data: holdings }, { data: assets }] = await Promise.all([
-    supabase.from("profiles").select("id, username, coins").order("coins", { ascending: false }).limit(20),
-    supabase.from("pixels").select("owner_id, locked").eq("locked", true).not("owner_id", "is", null),
-    supabase.from("pixel_history").select("user_id"),
-    supabase.from("user_asset_holdings").select("user_id, asset_id, quantity"),
-    supabase.from("virtual_assets").select("id, current_price")
+    (supabase as any).from("profiles").select("id, username, coins").order("coins", { ascending: false }).limit(20),
+    (supabase as any).from("pixels").select("owner_id, locked").eq("locked", true).not("owner_id", "is", null),
+    (supabase as any).from("pixel_history").select("user_id"),
+    (supabase as any).from("user_asset_holdings").select("user_id, asset_id, quantity"),
+    (supabase as any).from("virtual_assets").select("id, current_price")
   ]);
 
   const usernames = new Map((profiles ?? []).map((item) => [item.id, item.username]));

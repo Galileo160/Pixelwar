@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function WallPage() {
   const { supabase, profile } = await getSessionProfile();
-  const { data: pixels } = await supabase.from("pixels").select("*").order("updated_at", { ascending: false }).limit(5000);
+  const { data: pixels } = await (supabase as any).from("pixels").select("*").order("updated_at", { ascending: false }).limit(5000);
 
   return (
     <>

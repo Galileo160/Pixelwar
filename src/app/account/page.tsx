@@ -8,14 +8,16 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const { supabase, profile } = await getSessionProfile();
-  const [{ data: owned }, { count: paintedCount }, { count: lockedCount }] = await Promise.all([
-    supabase.from("pixels").select("*").eq("owner_id", profile.id).order("updated_at", { ascending: false }).limit(80),
-    supabase.from("pixel_history").select("id", { count: "exact", head: true }).eq("user_id", profile.id),
-    supabase.from("pixels").select("x", { count: "exact", head: true }).eq("owner_id", profile.id).eq("locked", true)
+  const profileId = profile.id;
+  const [{ data: ownedPixels }, { count: paintedCount }, { count: lockedCount }] = await Promise.all([
+    (supabase as any).from("pixels").select("*").eq("owner_id", profileId).order("updated_at", { ascending: false }).limit(80),
+    (supabase as any).from("pixel_history").select("id", { count: "exact", head: true }).eq("user_id", profileId),
+    (supabase as any).from("pixels").select("x", { count: "exact", head: true }).eq("owner_id", profileId).eq("locked", true)
   ]);
 
-  const unlocked = (owned ?? []).filter((pixel) => !pixel.locked).slice(0, 20);
-  const locked = (owned ?? []).filter((pixel) => pixel.locked).slice(0, 20);
+  const owned = (ownedPixels ?? []) as Array<{ x: number; y: number; color: string; locked: boolean; updated_at: string }>;
+  const unlocked = owned.filter((pixel) => !pixel.locked).slice(0, 20);
+  const locked = owned.filter((pixel) => pixel.locked).slice(0, 20);
 
   return (
     <>
@@ -33,11 +35,11 @@ export default async function AccountPage() {
           <div className="glass-card rounded-3xl p-6">
             <h2 className="mb-5 flex items-center gap-2 text-2xl font-black"><Image /> Vorschau deiner Pixelkunst</h2>
             <div className="grid grid-cols-10 gap-2 sm:grid-cols-16 md:grid-cols-20">
-              {(owned ?? []).slice(0, 80).map((pixel) => (
+              {owned.slice(0, 80).map((pixel) => (
                 <div key={`${pixel.x}-${pixel.y}`} className="aspect-square rounded-md border border-white/10" title={`${pixel.x},${pixel.y}`} style={{ background: pixel.color }} />
               ))}
             </div>
-            {owned?.length === 0 && <p className="text-slate-400">Noch keine Pixel. Starte auf der Pixel-Wall.</p>}
+            {owned.length === 0 && <p className="text-slate-400">Noch keine Pixel. Starte auf der Pixel-Wall.</p>}
           </div>
 
           <div className="space-y-6">

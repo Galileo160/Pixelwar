@@ -7,8 +7,9 @@ export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
   const { supabase, profile } = await getSessionProfile();
-  const { data: events } = await supabase.from("events").select("*").order("starts_at", { ascending: false }).limit(10);
-  const active = events?.find((event) => event.active);
+  const { data: events } = await (supabase as any).from("events").select("*").order("starts_at", { ascending: false }).limit(10);
+  const eventList = (events ?? []) as Array<{ id: string; title: string; description: string; active: boolean; starts_at: string; ends_at: string }>;
+  const active = eventList.find((event) => event.active);
 
   return (
     <>
@@ -31,7 +32,7 @@ export default async function EventsPage() {
           </div>
         </section>
         <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {(events ?? []).map((event) => (
+          {eventList.map((event) => (
             <article key={event.id} className="glass-card rounded-3xl p-6">
               <p className="text-sm text-cyanNeon">{event.active ? "Aktiv" : "Geplant/Archiv"}</p>
               <h3 className="mt-2 text-xl font-black">{event.title}</h3>
