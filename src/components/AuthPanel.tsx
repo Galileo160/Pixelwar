@@ -14,26 +14,35 @@ export function AuthPanel() {
   async function submit() {
     setLoading(true);
     setMessage("");
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=/wall`;
 
-    const result =
-      mode === "signup"
-        ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo, data: { username } } })
-        : await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const redirectTo = `${window.location.origin}/auth/callback?next=/wall`;
 
-    setLoading(false);
-    if (result.error) {
-      setMessage(result.error.message);
-      return;
+      console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+
+      const result =
+        mode === "signup"
+          ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo, data: { username } } })
+          : await supabase.auth.signInWithPassword({ email, password });
+
+      if (result.error) {
+        setMessage(result.error.message);
+        return;
+      }
+
+      if (mode === "signup" && !result.data.session) {
+        setMessage("Account erstellt. Bitte bestätige deine E-Mail, falls Supabase Email-Confirm aktiviert ist.");
+        return;
+      }
+
+      window.location.href = "/wall";
+    } catch (error) {
+      console.error("Auth request failed:", error);
+      setMessage(error instanceof Error ? error.message : "Auth request failed");
+    } finally {
+      setLoading(false);
     }
-
-    if (mode === "signup" && !result.data.session) {
-      setMessage("Account erstellt. Bitte bestätige deine E-Mail, falls Supabase Email-Confirm aktiviert ist.");
-      return;
-    }
-
-    window.location.href = "/wall";
   }
 
   return (
